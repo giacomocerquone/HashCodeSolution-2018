@@ -3,4 +3,4 @@ Our solution to the qualification round. First time, with no practice. Scored 11
 
 Code write in a hurry so excuse us :D by Giacomo Cerquone and Gianluca Di Francesco
 
-![HashCode Score](./score,png)
+![HashCode Score](https://github.com/giacomocerquone/HashCodeSolution-2018/blob/master/score.png?raw=true)
