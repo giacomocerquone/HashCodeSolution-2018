@@ -15,9 +15,7 @@ let ridesObj = []
 let carsObj = []
 
 single_rows.shift()
-console.log(single_rows);
 single_rows.splice(-1, 1)
-console.log(single_rows);
 
 single_rows.forEach((ride, index) => {
   ride = ride.split(' ')
@@ -27,7 +25,9 @@ single_rows.forEach((ride, index) => {
     finish: [ride[2], ride[3]],
     minStart: ride[4],
     maxFinish: ride[5],
-    car: false
+    car: null,
+    assigned: false,
+    completed: false
   })
 })
 
@@ -35,7 +35,8 @@ for(let i = 0; i < F; i++) {
   carsObj.push({
     id: i,
     currCell: [0, 0],
-    ride: false,
+    riding: false,
+    ride: null,
     hasPassenger: false,
     ridesDone: []
   })
@@ -69,13 +70,13 @@ for(let step = 1; step <= T; step++) {
   ridesObj.forEach( ride => {
     // If current ride has to start and no car is assigned
     // (ride.car is true if ride is finished!)
-    if(ride.minStart <= step && ride.car == false) {
+    if(ride.assigned === false) {
       let bestDistance = 100000001
       let bestCar = null
 
       carsObj.forEach( car => {
         // If current car is not in any ride
-        if(car.ride == false) {
+        if(car.riding == false) {
           let currDistance = Math.abs(distance_Car_Ride(car, ride) - (ride.minStart - step))
           if(currDistance < bestDistance) {
             bestDistance = currDistance
@@ -84,9 +85,11 @@ for(let step = 1; step <= T; step++) {
         }
       })
 
-      if(bestCar != null) {
+      if(bestCar !== null) {
         bestCar.ride = ride.id
         ride.car = bestCar.id
+        bestCar.riding = true
+        ride.assigned = true
         if(bestCar.currCell[0] == ridesObj[bestCar.ride].start[0] && bestCar.currCell[1] == ridesObj[bestCar.ride].start[1])
           bestCar.hasPassenger = true
       }
@@ -95,7 +98,7 @@ for(let step = 1; step <= T; step++) {
   })
 
   carsObj.forEach(car => {
-    if(car.ride != false) {
+    if(car.riding !== false) {
       if (!car.hasPassenger) {
         moveCar(car, ridesObj[car.ride].start)
         if(car.currCell[0] == ridesObj[car.ride].start[0] && car.currCell[1] == ridesObj[car.ride].start[1]) {
@@ -105,9 +108,10 @@ for(let step = 1; step <= T; step++) {
         moveCar(car, ridesObj[car.ride].finish)
         // Se è arrivato
         if(car.currCell[0] == ridesObj[car.ride].finish[0] && car.currCell[1] == ridesObj[car.ride].finish[1]) {
-          ridesObj[car.ride].car = true
+          ridesObj[car.ride].completed = true
           car.ridesDone.push(ridesObj[car.ride].id)
-          car.ride = false
+          car.ride = null
+          car.riding = false
           car.hasPassenger = false
         }
 
@@ -128,8 +132,5 @@ carsObj.forEach(car => {
   })
   toWrite += '\n'
 })
-
-console.log(ridesObj)
-console.log(carsObj)
 
 fs.writeFileSync(process.argv[3], toWrite);
